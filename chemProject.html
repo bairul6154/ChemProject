@@ -1,0 +1,706 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+    <title>p5js Template</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.3/p5.js"></script>
+
+    <script>
+        var bondA = [0, 1, 0, 1]; // first 2 values are the top. the next 2 are the bot.
+        var bondAtoggle = [1, 1];
+        var bondT = [0, 1, 0, 1]; //first 2 values are the left. the laste 2 are the right
+        var bondTtoggle = [1, 1];
+        var bondM = [0, 1, 0, 1]; //first 2 values are the left. the laste 2 are the right
+        var bondMtoggle = [1, 1];
+        var bondQ = [0, 1, 0, 1, 0, 1];
+        var bondQtoggle = [1, 1, 1];
+        var r = 50;
+        var angle = [1, 0, 0]; //first value is planar. Second value is octahedral and bipyramidal. third value is tetrahedral
+        var orbitalCloud = [1, 1]; //first value is bond and second value is unpaired electrons
+        var img = [];
+        var x, y
+        var randomModel, pModel;
+        var score = 0,
+            scoreC = "black"
+        var time = 0,
+            fastTime = 0;
+
+        function preload() {
+            img.push(loadImage("Linear.PNG"));
+            img.push(loadImage("trigonal.PNG"));
+            img.push(loadImage("bent.PNG"));
+            img.push(loadImage("bipyramid.PNG"));
+            img.push(loadImage("seesaw.PNG"));
+            img.push(loadImage("tshape.PNG"));
+            img.push(loadImage("linear2.PNG"));
+            img.push(loadImage("octohedral.PNG"));
+            img.push(loadImage("pyramid.PNG"));
+            img.push(loadImage("square.PNG"));
+            img.push(loadImage("tshape2.PNG"));
+            img.push(loadImage("linear3.PNG"));
+            img.push(loadImage("tetrahedral.PNG"));
+            img.push(loadImage("trigonal-p.PNG"));
+            img.push(loadImage("bent2.PNG"));
+            //Link to the images= https://chem.libretexts.org/Bookshelves/General_Chemistry/Book%3A_Chemistry_(OpenSTAX)/07%3A_Chemical_Bonding_and_Molecular_Geometry/7.6%3A_Molecular_Structure_and_Polarity
+        }
+
+        function setup() {
+            createCanvas(800, 800);
+            rectMode(CENTER);
+            textAlign(CENTER);
+            textSize(18);
+
+            randomModel = floor(random(0, 15));
+            pModel = randomModel
+            x = 90
+            y = 293
+        }
+
+        function draw() {
+            cusBackground();
+            controlling();
+            bondCloudDeter();
+            bondCloud();
+            indicators();
+            models();
+        }
+
+        function mousePressed() {
+            if (mouseX < x + 42 && mouseX > x - 42 && mouseY < y + 12 && mouseY > y - 12) {
+                time = 0
+                score = 0
+            }
+        }
+
+        function cusBackground() {
+            background(200);
+            fill("white")
+            ellipse(width / 2, height / 2, r * 2);
+            textSize(25);
+            fill(scoreC);
+            text(score + "/10", width - 120, 225);
+            textSize(30);
+            fill("black")
+            text(time, width / 2, 50);
+            textSize(18);
+            if (score >= 10) {
+                if (fastTime == 0) {
+                    fastTime = time
+                }
+                else if (fastTime > time) {
+                    fastTime = time
+                }
+                fill("white");
+                rect(x, y, 85, 25);
+                fill("black")
+                text("Click here to \nrestart Challenge \nor you can \ncontinue to practice \nlike Sandbox mode", 100, 300)
+                fill("red")
+                text("Your Fastest time \nis " + fastTime + " seconds", 100, 410);
+            }
+            else {
+                if (frameCount % 60 == 0) {
+                    time++
+                }
+            }
+            fill("white")
+        }
+
+        function indicators() {
+            rect(r * 2, r * 2, 95, 95);
+            if (orbitalCloud[0] == 1) {
+                ellipse(r * 2, r * 2 - 10, 35);
+                fill("black")
+                text("Bond", r * 2, r * 2 + 23);
+            }
+            else {
+                ellipse(r * 2 - 10, r * 2 - 10, r / 4);
+                ellipse(r * 2 + 10, r * 2 - 10, r / 4);
+                fill("black")
+                text("Unpaired e-", r * 2, r * 2 + 23);
+            }
+            fill("white")
+            rect(r * 2, 167, 95, 25);
+            fill("black")
+            if (angle[0] == 1) {
+                text("Planar", r * 2, 173);
+            }
+            else if (angle[1] == 1) {
+                text("5-8 clouds", r * 2, 173);
+            }
+            else {
+                text("Tetrahedral", r * 2, 173);
+            }
+            if (pModel !== randomModel) {
+                score++
+                pModel = randomModel
+            }
+            fill("white")
+        }
+
+        function models() {
+            if (randomModel == 0) { //Linear 
+                image(img[0], width - 200, 50, 150, 150)
+                if (bondT[0] == 1 && bondTtoggle[0] == 1 && bondT[2] == 1 && bondTtoggle[1] == 1 && bondA[1] == 1 && angle[0] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 1) { //Trigonal Planar
+                image(img[1], width - 200, 50, 150, 150)
+                if (bondT[0] == 1 && bondTtoggle[0] == 1 && bondT[2] == 1 && bondTtoggle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 1 && angle[0] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 2) { //Bent
+                image(img[2], width - 200, 50, 150, 150)
+                if (bondT[0] == 1 && bondTtoggle[0] == 1 && bondT[2] == 1 && bondTtoggle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 0 && angle[0] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 3) { //Trigonal Bipyramidal
+                image(img[3], width - 200, 50, 150, 150)
+                if (bondTtoggle[0] == 1 && bondT[0] == 1 && bondMtoggle[0] == 1 && bondM[0] == 1 && bondTtoggle[1] == 1 && bondT[2] == 1 && bondM[3] == 1 && angle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 1 && bondA[2] == 1 && bondAtoggle[1] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 4) { //Seeaw
+                image(img[4], width - 200, 50, 150, 150)
+                if (bondTtoggle[0] == 1 && bondT[0] == 1 && bondMtoggle[0] == 1 && bondM[0] == 1 && bondTtoggle[1] == 0 && bondT[2] == 1 && bondM[3] == 1 && angle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 1 && bondA[2] == 1 && bondAtoggle[1] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 5) { //T-Shape
+                image(img[5], width - 200, 50, 150, 150)
+                if (bondTtoggle[0] == 0 && bondT[0] == 1 && bondMtoggle[0] == 0 && bondM[0] == 1 && bondTtoggle[1] == 1 && bondT[2] == 1 && bondM[3] == 1 && angle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 1 && bondA[2] == 1 && bondAtoggle[1] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 6) { //Linear w/ 5 clouds
+                image(img[6], width - 200, 50, 150, 150)
+                if (bondTtoggle[0] == 0 && bondT[0] == 1 && bondMtoggle[0] == 0 && bondM[0] == 1 && bondTtoggle[1] == 0 && bondT[2] == 1 && bondM[3] == 1 && angle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 1 && bondA[2] == 1 && bondAtoggle[1] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 7) { //Octahedral
+                image(img[7], width - 200, 50, 150, 150)
+                if (bondTtoggle[0] == 1 && bondT[0] == 1 && bondMtoggle[0] == 1 && bondM[0] == 1 && bondTtoggle[1] == 1 && bondT[2] == 1 && bondMtoggle[1] == 1 && bondM[2] == 1 && angle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 1 && bondA[2] == 1 && bondAtoggle[1] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 8) { //Square Pyramidal
+                image(img[8], width - 200, 50, 150, 150)
+                if (bondTtoggle[0] == 1 && bondT[0] == 1 && bondMtoggle[0] == 1 && bondM[0] == 1 && bondTtoggle[1] == 1 && bondT[2] == 1 && bondMtoggle[1] == 1 && bondM[2] == 1 && angle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 1 && bondA[2] == 1 && bondAtoggle[1] == 0) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 9) { //Square Planar
+                image(img[9], width - 200, 50, 150, 150)
+                if (bondTtoggle[0] == 1 && bondT[0] == 1 && bondMtoggle[0] == 1 && bondM[0] == 1 && bondTtoggle[1] == 1 && bondT[2] == 1 && bondMtoggle[1] == 1 && bondM[2] == 1 && angle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 0 && bondA[2] == 1 && bondAtoggle[1] == 0) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 10) { //T-Shape w/ 6 clouds
+                image(img[10], width - 200, 50, 150, 150)
+                if (bondTtoggle[0] == 0 && bondT[0] == 1 && bondMtoggle[0] == 0 && bondM[0] == 1 && bondTtoggle[1] == 0 && bondT[2] == 1 && bondMtoggle[1] == 1 && bondM[2] == 1 && angle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 1 && bondA[2] == 1 && bondAtoggle[1] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 11) { //Linear w/ 6 clouds
+                image(img[11], width - 200, 50, 150, 150)
+                if (bondTtoggle[0] == 0 && bondT[0] == 1 && bondMtoggle[0] == 0 && bondM[0] == 1 && bondTtoggle[1] == 0 && bondT[2] == 1 && bondMtoggle[1] == 0 && bondM[2] == 1 && angle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 1 && bondA[2] == 1 && bondAtoggle[1] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 12) { //Tetrahedral
+                image(img[12], width - 200, 50, 150, 150)
+                if (bondQ[0] == 1 && bondQtoggle[0] == 1 && bondQ[2] == 1 && bondQtoggle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 1 && bondQ[4] == 1 && bondQtoggle[2] == 1 && angle[2] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 13) { //Trigonal Pyramidal
+                image(img[13], width - 200, 50, 150, 150)
+                if (bondQ[0] == 1 && bondQtoggle[0] == 1 && bondQ[2] == 1 && bondQtoggle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 0 && bondQ[4] == 1 && bondQtoggle[2] == 1 && angle[2] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+            else if (randomModel == 14) { //Bent w/ 4 clouds
+                image(img[14], width - 200, 50, 150, 150)
+                if (bondQ[0] == 1 && bondQtoggle[0] == 0 && bondQ[2] == 1 && bondQtoggle[1] == 1 && bondA[0] == 1 && bondAtoggle[0] == 0 && bondQ[4] == 1 && bondQtoggle[2] == 1 && angle[2] == 1) {
+                    randomModel = floor(random(0, 15));
+                }
+            }
+        }
+
+        function bondCloudDeter() {
+            if (bondA[1] == 1) {
+                if (orbitalCloud[0] == 1) {
+                    bondAtoggle[0] = 1
+                }
+                else if (orbitalCloud[1] == 1) {
+                    bondAtoggle[0] = 0
+                }
+            }
+            if (bondA[3] == 1) {
+                if (orbitalCloud[0] == 1) {
+                    bondAtoggle[1] = 1
+                }
+                else if (orbitalCloud[1] == 1) {
+                    bondAtoggle[1] = 0
+                }
+            }
+            if (bondT[3] == 1) {
+                if (orbitalCloud[0] == 1) {
+                    bondTtoggle[1] = 1
+                }
+                else if (orbitalCloud[1] == 1) {
+                    bondTtoggle[1] = 0
+                }
+            }
+            if (bondT[1] == 1) {
+                if (orbitalCloud[0] == 1) {
+                    bondTtoggle[0] = 1
+                }
+                else if (orbitalCloud[1] == 1) {
+                    bondTtoggle[0] = 0
+                }
+            }
+            if (bondM[1] == 1) {
+                if (orbitalCloud[0] == 1) {
+                    bondMtoggle[0] = 1
+                }
+                else if (orbitalCloud[1] == 1) {
+                    bondMtoggle[0] = 0
+                }
+            }
+            if (bondM[3] == 1) {
+                if (orbitalCloud[0] == 1) {
+                    bondMtoggle[1] = 1
+                }
+                else if (orbitalCloud[1] == 1) {
+                    bondMtoggle[1] = 0
+                }
+            }
+            if (bondQ[1] == 1) {
+                if (orbitalCloud[0] == 1) {
+                    bondQtoggle[0] = 1
+                }
+                else if (orbitalCloud[1] == 1) {
+                    bondQtoggle[0] = 0
+                }
+            }
+            if (bondQ[3] == 1) {
+                if (orbitalCloud[0] == 1) {
+                    bondQtoggle[1] = 1
+                }
+                else if (orbitalCloud[1] == 1) {
+                    bondQtoggle[1] = 0
+                }
+            }
+            if (bondQ[5] == 1) {
+                if (orbitalCloud[0] == 1) {
+                    bondQtoggle[2] = 1
+                }
+                else if (orbitalCloud[1] == 1) {
+                    bondQtoggle[2] = 0
+                }
+            }
+        }
+
+        function bondCloud() {
+            if (bondA[0] == 1) {
+                if (bondAtoggle[0] == 1) {
+                    ellipse(width / 2, height / 2 - r * 5 / 2, r)
+                }
+                else if (bondAtoggle[0] == 0) {
+                    ellipse(width / 2 - r / 4, height / 2 - r * 2, r / 4)
+                    ellipse(width / 2 + r / 4, height / 2 - r * 2, r / 4)
+                }
+            }
+            if (angle[0] == 1) {
+                if (bondA[0] == 1 && bondT[0] == 1 && bondT[2] == 1) {
+                    if (bondTtoggle[1] == 1) {
+                        ellipse(width / 2 + r * 2 + 8, height / 2 + r * 3 / 2 - 10, r)
+                    }
+                    else if (bondTtoggle[1] == 0) {
+                        ellipse(width / 2 + r * 2, height / 2 - r / 4 + r + 7, r / 4)
+                        ellipse(width / 2 + r * 2 - 17, height / 2 + r / 4 + r + 3, r / 4)
+                    }
+                    if (bondTtoggle[0] == 1) {
+                        ellipse(width / 2 - r * 2 - 2, height / 2 + r * 3 / 2 - 10, r)
+                    }
+                    else if (bondTtoggle[0] == 0) {
+                        ellipse(width / 2 - r * 2, height / 2 - r / 4 + r + 7, r / 4)
+                        ellipse(width / 2 - r * 2 + 17, height / 2 + r / 4 + r + 3, r / 4)
+                    }
+                }
+                else {
+                    if (bondT[0] == 1) {
+                        if (bondTtoggle[0] == 1) {
+                            ellipse(width / 2 - r * 5 / 2, height / 2, r)
+                        }
+                        else if (bondTtoggle[0] == 0) {
+                            ellipse(width / 2 - r * 2, height / 2 - r / 4, r / 4)
+                            ellipse(width / 2 - r * 2, height / 2 + r / 4, r / 4)
+                        }
+                    }
+                    if (bondA[2] == 1) {
+                        if (bondAtoggle[1] == 1) {
+                            ellipse(width / 2, height / 2 + r * 5 / 2, r)
+                        }
+                        else if (bondAtoggle[1] == 0) {
+                            ellipse(width / 2 - r / 4, height / 2 + r * 2, r / 4)
+                            ellipse(width / 2 + r / 4, height / 2 + r * 2, r / 4)
+                        }
+                    }
+                    if (bondT[2] == 1) {
+                        if (bondTtoggle[1] == 1) {
+                            ellipse(width / 2 + r * 5 / 2, height / 2, r)
+                        }
+                        else if (bondTtoggle[1] == 0) {
+                            ellipse(width / 2 + r * 2, height / 2 - r / 4, r / 4)
+                            ellipse(width / 2 + r * 2, height / 2 + r / 4, r / 4)
+                        }
+                    }
+                }
+            }
+            else if (angle[1] == 1) {
+                if (bondA[2] == 1) {
+                    if (bondAtoggle[1] == 1) {
+                        ellipse(width / 2, height / 2 + r * 5 / 2, r)
+                    }
+                    else if (bondAtoggle[1] == 0) {
+                        ellipse(width / 2 - r / 4, height / 2 + r * 2, r / 4)
+                        ellipse(width / 2 + r / 4, height / 2 + r * 2, r / 4)
+                    }
+                }
+            }
+            if (angle[1] == 1) {
+                if (bondT[2] == 1 && bondM[3] == 1) {
+                    if (bondTtoggle[1] == 1) {
+                        ellipse(width / 2 + r * 5 / 2, height / 2, r)
+                    }
+                    else if (bondTtoggle[1] == 0) {
+                        ellipse(width / 2 + r * 2, height / 2 - r / 4, r / 4)
+                        ellipse(width / 2 + r * 2, height / 2 + r / 4, r / 4)
+                    }
+                }
+                else if (bondT[2] == 1 && bondM[2] == 1) {
+                    if (bondTtoggle[1] == 1) {
+                        ellipse(width / 2 + r * 5 / 2 - 10, height / 2 - r / 2 - 5, r - 5)
+                    }
+                    else if (bondTtoggle[1] == 0) {
+                        ellipse(width / 2 + r * 2 + 3, height / 2 - r / 4 - 26, r / 4 - 1)
+                        ellipse(width / 2 + r * 2 + 10, height / 2 + r / 4 - 29, r / 4 - 1)
+                    }
+                }
+                if (bondT[0] == 1 && bondM[1] == 1) {
+                    if (bondTtoggle[0] == 1) {
+                        ellipse(width / 2 - r * 5 / 2, height / 2, r)
+                    }
+                    else if (bondTtoggle[0] == 0) {
+                        ellipse(width / 2 - r * 2, height / 2 - r / 4, r / 4)
+                        ellipse(width / 2 - r * 2, height / 2 + r / 4, r / 4)
+                    }
+                }
+                else if (bondT[0] == 1 && bondM[0] == 1) {
+                    if (bondTtoggle[0] == 1) {
+                        ellipse(width / 2 - r * 5 / 2 + 10, height / 2 - r / 2 - 5, r - 5)
+                    }
+                    else if (bondTtoggle[0] == 0) {
+                        ellipse(width / 2 - r * 2 - 3, height / 2 - r / 4 - 26, r / 4 - 1)
+                        ellipse(width / 2 - r * 2 - 10, height / 2 + r / 4 - 29, r / 4 - 1)
+                    }
+                }
+                if (bondM[0] == 1) {
+                    if (bondMtoggle[0] == 1) {
+                        ellipse(width / 2 - r * 5 / 2, height / 2 + r / 2 + 5, r + 5)
+                    }
+                    else if (bondMtoggle[0] == 0) {
+                        ellipse(width / 2 - r * 2 - 10, height / 2 - r / 4 + 29, r / 4 - 1)
+                        ellipse(width / 2 - r * 2 - 5, height / 2 + r / 4 + 25, r / 4 - 1)
+                    }
+                }
+                if (bondM[2] == 1) {
+                    if (bondMtoggle[1] == 1) {
+                        ellipse(width / 2 + r * 5 / 2, height / 2 + r / 2 + 5, r + 5)
+                    }
+                    else if (bondMtoggle[1] == 0) {
+                        ellipse(width / 2 + r * 2 + 10, height / 2 - r / 4 + 29, r / 4 - 1)
+                        ellipse(width / 2 + r * 2 + 5, height / 2 + r / 4 + 25, r / 4 - 1)
+                    }
+                }
+            }
+            if (angle[2] == 1) {
+                if (bondQ[2] == 1 && bondQ[0] == 1) {
+                    if (bondQtoggle[0] == 1) {
+                        ellipse(width / 2 - r * 5 / 2 + 45, height / 2 + 25, r - 5)
+                        planar(r, r - 17, -r / 2 + 5, -r / 2 + 15);
+                    }
+                    else if (bondQtoggle[0] == 0) {
+                        planar(r, r - 17, -r / 2 + 5, -r / 2 + 15);
+                        ellipse(width / 2 - r * 2 + 20, height / 2 - r / 4 + 29, r / 4 - 2)
+                        ellipse(width / 2 - r * 2 + 30, height / 2 + r / 4 + 21, r / 4 - 2)
+                    }
+                    if (bondQtoggle[1] == 1) {
+                        planar(r - 12, r - 7, -r, -r / 2 + 10);
+                        ellipse(width / 2 - r * 5 / 2 + 21, height / 2 + 65, r + 5)
+                    }
+                    else if (bondQtoggle[1] == 0) {
+                        planar(r - 12, r - 7, -r, -r / 2 + 10);
+                        ellipse(width / 2 - r * 2 - 2, height / 2 - r / 4 + 59, r / 4 + 1)
+                        ellipse(width / 2 - r * 2 + 14, height / 2 + r / 4 + 56, r / 4 + 1)
+                    }
+                }
+                else if (bondQ[2] == 1) {
+                    if (bondQtoggle[1] == 1) {
+                        planar(r - 12, r - 7, -r, -r / 2 + 10);
+                        ellipse(width / 2 - r * 5 / 2 + 21, height / 2 + 65, r + 5)
+                    }
+                    else if (bondQtoggle[1] == 0) {
+                        planar(r - 12, r - 7, -r, -r / 2 + 10);
+                        ellipse(width / 2 - r * 2 - 2, height / 2 - r / 4 + 59, r / 4 + 1)
+                        ellipse(width / 2 - r * 2 + 14, height / 2 + r / 4 + 56, r / 4 + 1)
+                    }
+                }
+                if (bondQ[0] == 1 && bondQ[2] !== 1) {
+                    if (bondQtoggle[0] == 1) {
+                        ellipse(width / 2 - r * 2 - 2, height / 2 + r * 3 / 2 - 10, r)
+                    }
+                    else if (bondQtoggle[0] == 0) {
+                        ellipse(width / 2 - r * 2, height / 2 - r / 4 + r + 7, r / 4)
+                        ellipse(width / 2 - r * 2 + 17, height / 2 + r / 4 + r + 3, r / 4)
+                    }
+                }
+                if (bondQ[4] == 1) {
+                    if (bondQtoggle[2] == 1) {
+                        ellipse(width / 2 + r * 5 / 2 - 16, height / 2 + 64, r)
+                    }
+                    else if (bondQtoggle[2] == 0) {
+                        ellipse(width / 2 + r * 2, height / 2 - r / 4 + 56, r / 4 - 1)
+                        ellipse(width / 2 + r * 2 - 14, height / 2 + r / 4 + 54, r / 4 - 1)
+                    }
+                }
+            }
+        }
+
+        function controlling() {
+            if (bondA[0] == 1 && bondT[0] == 1 && bondT[2] == 1 && angle[0] == 1) {
+                axial(r);
+                planar(r - 7, r - 7, -r, -r / 2);
+                planar(-r + 7, -r + 7, -r, -r / 2);
+            }
+            else {
+                if (bondT[0] == 1 && bondM[0] == 1 && angle[1] == 1) {
+                    multi(r, r, -r, -r);
+                    multi(r + 25, r, r, r);
+                }
+                //this is the left bond in the trigonal planar and linear just planar
+                if (bondM[0] !== 1 && bondT[0] == 1 && angle[2] == 0) {
+                    planar(r, r, 0, 0);
+                }
+                else if (bondM[0] !== 1 && bondT[0] == 1 && angle[2] == 1) {
+                    planar(r - 7, r - 7, -r, -r / 2);
+                }
+                if (bondT[2] == 1 && bondM[2] == 1 && angle[1] == 1) {
+                    multi(-r, -r, -r, -r);
+                    multi(-r - 25, -r, r, r);
+                }
+                if (bondM[2] == 0 && bondT[2] == 1) {
+                    if (angle[2] == 1) {
+                        planar(-r + 7, -r + 7, -r, -r / 2);
+                    }
+                    else { //bond for the right planar or trigonal planar
+                        planar(-r, -r, 0, 0);
+                    }
+                }
+                if (bondA[0] == 1) {
+                    axial(r);
+                }
+                if (bondA[2] == 1) {
+                    axial(-r);
+                }
+            }
+        }
+
+        function axial(d) {
+            line(width / 2, height / 2 - d, width / 2, height / 2 - d * 2);
+        }
+
+        function planar(x2, x, h, h2) {
+            line(width / 2 - x2, height / 2 - h2, width / 2 - x * 2, height / 2 - h);
+        }
+
+        function multi(x, x2, h, h2) {
+            line(width / 2 - x * 2 / 3, height / 2 - h2 / 4, width / 2 - x2 * 2, height / 2 - h / 2);
+        }
+
+        function keyPressed() { //KEY IS PRESSED, THE CONTROLS KEYS
+            if (keyCode == UP_ARROW && bondA[1] == 1) {
+                bondA[0] = 1;
+                bondA[1] = 0;
+            }
+            else if (keyCode == UP_ARROW && bondA[1] == 0) {
+                bondA[0] = 0;
+                bondA[1] = 1;
+            }
+            if (key == "a" || key == "A") {
+                orbitalCloud = [1, 0];
+            }
+            if (key == "s" || key == "S") {
+                orbitalCloud = [0, 1];
+            }
+            if (key == "x" || key == "X") {
+                angle = [0, 1, 0];
+                bondQ[0] = 0
+                bondQ[1] = 1
+                bondQ[2] = 0
+                bondQ[3] = 1
+            }
+            if (key == "z" || key == "Z") {
+                angle = [1, 0, 0];
+                bondM[1] = 1 //toggle button
+                bondM[0] = 0 //turn off bond
+                bondM[3] = 1 //toggle button
+                bondM[2] = 0 //turn off bond
+                bondQ[0] = 0
+                bondQ[1] = 1
+                bondQ[2] = 0
+                bondQ[3] = 1
+            }
+            if (key == "c" || key == "C") {
+                angle = [0, 0, 1];
+                bondM[3] = 1 //toggle button
+                bondM[2] = 0 //turn off bond
+                bondM[1] = 1 //toggle button
+                bondM[0] = 0 //turn off bond
+                bondT[0] = 0
+                bondT[1] = 1
+            }
+            if (keyCode == LEFT_ARROW && bondT[1] == 1) {
+                bondT[0] = 1; //turn on bond
+                bondT[1] = 0; //toggles the button so that the next push will turn off bond
+                if (angle[2] == 1 && bondQ[1] == 1) {
+                    bondQ[0] = 1;
+                    bondQ[1] = 0;
+                }
+                else if (angle[2] == 1 && bondQ[1] == 0) {
+                    bondQ[0] = 0;
+                    bondQ[1] = 1;
+                }
+            }
+            else if (keyCode == LEFT_ARROW && bondT[1] == 0 && angle[0] == 1) {
+                bondT[0] = 0; //turn off bond
+                bondT[1] = 1; //toggles the button
+            }
+            else if (angle[1] == 1 || angle[2] == 1) {
+                if (keyCode == LEFT_ARROW && bondM[1] == 1) {
+                    bondM[0] = 1; //turn on bond
+                    bondM[1] = 0; //toggle button so that next push will reset the 2 bond
+                    if (angle[2] == 1 && bondQ[3] == 1) {
+                        bondQ[2] = 1;
+                        bondQ[3] = 0;
+                    }
+                }
+                else if (keyCode == LEFT_ARROW && bondM[1] == 0) {
+                    bondM[1] = 1; //toggle button
+                    bondM[0] = 0; //turn off bond
+                    bondT[0] = 0; //turn off bond
+                    bondT[1] = 1; //toggle button
+                    bondQ[0] = 0;
+                    bondQ[1] = 1;
+                    bondQ[2] = 0;
+                    bondQ[3] = 1;
+                }
+            }
+            if (keyCode == RIGHT_ARROW && bondT[3] == 1) {
+                bondT[2] = 1;
+                bondT[3] = 0;
+                if (angle[2] == 1 && bondQ[5] == 1) {
+                    bondQ[4] = 1
+                    bondQ[5] = 0
+                }
+            }
+            else if (angle[0] == 1 || angle[2] == 1) {
+                if (keyCode == RIGHT_ARROW && bondT[3] == 0) {
+                    bondT[2] = 0;
+                    bondT[3] = 1;
+                    if (angle[2] == 1 && bondQ[5] == 0) {
+                        bondQ[4] = 0
+                        bondQ[5] = 1
+                    }
+                }
+            }
+            else if (keyCode == RIGHT_ARROW && bondM[3] == 1 && angle[1] == 1) {
+                bondM[2] = 1; //turn on bond
+                bondM[3] = 0; //toggle button so that next push will reset the 2 bond
+            }
+            else if (keyCode == RIGHT_ARROW && bondM[3] == 0 && angle[1] == 1) {
+                bondM[3] = 1; //toggle button
+                bondM[2] = 0; //turn off bond
+                bondT[2] = 0; //turn off bond
+                bondT[3] = 1; //toggle button
+            }
+            if (angle[1] == 1) {
+                if (keyCode == DOWN_ARROW && bondA[3] == 1) {
+                    bondA[2] = 1;
+                    bondA[3] = 0;
+                }
+                else if (keyCode == DOWN_ARROW && bondA[3] == 0) {
+                    bondA[2] = 0;
+                    bondA[3] = 1;
+                }
+            }
+            else {
+                bondA[2] = 0;
+                bondA[3] = 1;
+            }
+        }
+    </script>
+    <style>
+    * {
+        font-size: 20px;
+    }
+        #tutorial{
+            display: none;
+            border: solid 2px rgba(200,200,200);
+            width:800px;
+        }
+        #button {
+            text-align: center;
+            background-color: rgba(200,200,200);
+            width:800px;
+        }
+        #button:hover {
+            background-color: rgba(230,180,180);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="button">Click for tutorial</div>
+    <div id="tutorial">
+        <h1>Tutorial</h1>
+        <h2>Keys</h2>
+        <p>Press Arrow Keys to add or remove orbital clouds. Ex. Up arrow to add or remove top clouds. <br> Press A to switch to adding bonding electrons<br> Press S to switch to adding unpaired electrons<br> Press Z to change the geometry to Planar with
+            up to 3 clouds<br> Press X to change the geometry to Bipyramidal or Octahedral with 5 to 8 clouds<br> Press C to change the geometry to Tetrahedral with 4 clouds</p>
+        <h2>Objective</h2>
+        <p>Your goal is to match the picture on the right. The x's represent bonding pairs in the picture.<br> Race against yourself or others to match up to 10 with the fastest time</p>
+    </div>
+    <script>
+    var a = 1
+        $(function() {
+            $("#button").click(function() {
+                if (a == 1) {
+                    $("#tutorial").slideDown(1500)
+                    a = 0
+                } else {
+                    $("#tutorial").slideUp(1500)
+                    a = 1
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
